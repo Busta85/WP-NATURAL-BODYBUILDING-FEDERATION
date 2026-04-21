@@ -8,7 +8,7 @@ import { addRegistration, addGalleryItem, subscribeToGallery } from './lib/fireb
 import { cn } from './lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
-const EVENT_DATE = new Date('2026-11-14T00:00:00');
+const EVENT_DATE = new Date('2026-06-13T08:00:00+02:00'); // Assuming South African Standard Time (SAST) since it's in Cape Town
 
 function Countdown() {
   const [timeLeft, setTimeLeft] = useState({ d: '00', h: '00', m: '00', s: '00' });
@@ -130,8 +130,21 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
   };
 
   return (
-    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded group">
-      <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 aspect-[3/4]" referrerPolicy="no-referrer" />
+    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded group bg-white/5 border border-white/5 flex items-center justify-center">
+      <img 
+        src={item.imageUrl} 
+        alt={item.title} 
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 aspect-[3/4]" 
+        referrerPolicy="no-referrer"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+          (e.target as HTMLImageElement).parentElement?.classList.add('aspect-[3/4]');
+          const textNode = document.createElement('span');
+          textNode.className = 'text-[10px] text-white/40 uppercase absolute';
+          textNode.innerText = 'Upload image to public/gallery';
+          (e.target as HTMLImageElement).parentElement?.appendChild(textNode);
+        }}
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 flex flex-col justify-end">
         <h4 className="font-bold text-[10px] uppercase truncate">{item.title}</h4>
       </div>
@@ -181,9 +194,38 @@ function Gallery() {
     }
   };
 
-  const filteredItems = items.filter(item => 
+  const staticItems = [
+    {
+      id: 'static-1',
+      title: 'Legendary Posing',
+      year: '1960s',
+      imageUrl: '/gallery/david-posing.jpg'
+    },
+    {
+      id: 'static-2',
+      title: 'Classic Physique',
+      year: '1960s',
+      imageUrl: '/gallery/david-younger.jpg'
+    },
+    {
+      id: 'static-3',
+      title: 'With Arnold Schwarzenegger',
+      year: '1966',
+      imageUrl: '/gallery/david-arnold.jpg'
+    },
+    {
+      id: 'static-4',
+      title: 'David Isaacs Today',
+      year: 'Recent',
+      imageUrl: '/gallery/david-recent.jpg'
+    }
+  ];
+
+  const allItems = [...staticItems, ...items];
+
+  const filteredItems = allItems.filter(item => 
     item.title?.toLowerCase().includes(filter.toLowerCase()) || 
-    item.year?.includes(filter)
+    item.year?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
