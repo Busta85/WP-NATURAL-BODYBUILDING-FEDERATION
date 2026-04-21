@@ -247,12 +247,12 @@ export default function App() {
         </button>
       </nav>
 
-      <main className="bento-container w-full max-w-[1400px] mx-auto py-8">
+      <main className="bento-container w-full max-w-[1400px] mx-auto py-8 text-3d">
         {/* 1. Hero */}
         <div id="hero" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent min-h-[450px]">
           <div className="absolute inset-0 z-[-1] bg-center bg-cover bg-[center_top_10%] opacity-40 mix-blend-overlay" style={{backgroundImage: "url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80')"}}></div>
-          <h1 className="bold-header text-6xl md:text-8xl mb-4">THE DAVID ISAACS<br/>CLASSIC 2026</h1>
-          <div className="flex flex-col md:flex-row md:items-center gap-6 mt-2">
+          <h1 className="bold-header text-6xl md:text-8xl mb-4 text-3d">THE DAVID ISAACS<br/>CLASSIC 2026</h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-6 mt-2 text-3d">
             <div className="bg-white/10 px-4 py-2 rounded-lg inline-block border border-white/10 backdrop-blur-md">
               <span className="text-xs opacity-50 block uppercase font-bold tracking-wider mb-1">Event Countdown</span>
               <Countdown />
@@ -265,33 +265,35 @@ export default function App() {
         </div>
         
         {/* 2. Registration Form */}
-        <div id="athletes" className="bento-item col-span-12 lg:col-span-4 lg:row-span-2 flex flex-col">
-          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-white/10 pb-2">Athlete Registration</h2>
-          <RegistrationForm />
+        <div id="athletes" className="bento-item col-span-12 lg:col-span-4 lg:row-span-2 flex flex-col hover:z-20 transition-all duration-500">
+          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-white/10 pb-2 text-3d">Athlete Registration</h2>
+          <div className="text-3d w-full">
+            <RegistrationForm />
+          </div>
         </div>
 
         {/* 3. About WPNBBF */}
-        <div id="about" className="bento-item col-span-12 lg:col-span-8">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2">About WPNBBF</h2>
-          <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium">
+        <div id="about" className="bento-item col-span-12 lg:col-span-8 hover:z-20 transition-all duration-500">
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent">About WPNBBF</h2>
+          <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium text-3d">
             <div>
               <p className="mb-4">The Western Province Natural Bodybuilding Federation (WPNBBF) was established in 1951, dedicated to promoting drug-free bodybuilding and fitness in the region. Our mission is to protect the integrity of the sport.</p>
               <p>We uphold the highest standards of natural competition, providing athletes a fair stage to showcase their hard work, dedication, and pure genetic potential.</p>
             </div>
-            <div className="bg-white/5 p-4 rounded-lg border border-white/5 flex flex-col justify-center items-center text-center">
-              <span className="text-4xl mb-2">🏆</span>
+            <div className="bg-white/5 p-4 rounded-lg border border-white/5 flex flex-col justify-center items-center text-center shadow-[inset_0_0_20px_rgba(255,215,0,0.05)] border-t-accent/30">
+              <span className="text-4xl mb-2 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">🏆</span>
               <p className="font-bold uppercase tracking-wider mb-2 text-accent">100% Natural Guarantee</p>
               <p className="text-xs opacity-70">Dedicated to polygraph-tested and urine-tested shows strictly conforming with international natural bodybuilding standards.</p>
-              <button onClick={() => scrollTo('rules')} className="mt-4 px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 transition-colors text-[10px] uppercase font-bold tracking-widest">Read Full Rules</button>
+              <button onClick={() => scrollTo('rules')} className="mt-4 px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 hover:border-accent transition-colors text-[10px] uppercase font-bold tracking-widest">Read Full Rules</button>
             </div>
           </div>
         </div>
 
         {/* 3.5 History of David Isaacs */}
-        <div id="history" className="bento-item col-span-12 lg:col-span-8 flex flex-col relative overflow-hidden group">
-          <div className="absolute inset-0 z-[-1] bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-20 transition-opacity duration-700" style={{backgroundImage: "url('/gallery/david-2.jpg')"}}></div>
-          <h2 className="text-xl font-black mb-4 uppercase tracking-widest text-accent border-b border-accent/20 pb-2">The Legend: David Isaacs</h2>
-          <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full font-sans">
+        <div id="history" className="bento-item col-span-12 lg:col-span-8 flex flex-col relative overflow-hidden group hover:z-20 transition-all duration-500">
+          <div className="absolute inset-0 z-[-1] bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('/gallery/david-2.jpg')"}}></div>
+          <h2 className="text-xl font-black mb-4 uppercase tracking-widest text-accent border-b border-accent/20 pb-2 text-3d text-shadow-sm">The Legend: David Isaacs</h2>
+          <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full font-sans text-3d">
             <div className="flex-1 space-y-4 text-sm opacity-90 leading-relaxed font-medium">
               <p>
                 <span className="font-bold text-white drop-shadow-md">Humble Beginnings:</span> David was born in Uniondale and moved to Cape Town when his mom got a job as a domestic worker. 
@@ -327,7 +329,7 @@ export default function App() {
                  href="https://www.google.com/search?q=David+Isaacs+Cape+Town+Bodybuilder+Mr+Universe" 
                  target="_blank" 
                  rel="noopener noreferrer"
-                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-md transition-colors text-[10px] uppercase font-bold tracking-widest text-accent"
+                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-accent/20 to-transparent hover:from-accent/40 border border-accent/50 rounded-md transition-all text-[10px] uppercase font-bold tracking-widest text-accent shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] transform hover:scale-105"
                >
                  Search More About His Legacy
                </a>
@@ -384,31 +386,33 @@ export default function App() {
         </div>
 
         {/* 5. View Categories */}
-        <div className="bento-item col-span-12 md:col-span-6 lg:col-span-4 lg:row-start-5 lg:col-start-9 flex flex-col justify-start">
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-4">Available Categories</h2>
-          <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Men's Bodybuilding</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Men's Physique</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Bikini Model</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Women's Figure</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Classic Physique</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5">Masters Open</span>
+        <div className="bento-item col-span-12 md:col-span-6 lg:col-span-4 lg:row-start-5 lg:col-start-9 flex flex-col justify-start hover:z-20 transition-all duration-500">
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent">Available Categories</h2>
+          <div className="flex flex-wrap gap-2 text-3d">
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Bodybuilding</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Physique</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Bikini Model</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Women's Figure</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Classic Physique</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Masters Open</span>
           </div>
         </div>
 
         {/* 6. Gallery */}
-        <div id="gallery" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 lg:row-start-4 lg:col-start-1 flex flex-col">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2">Gallery & AI Generator</h2>
-          <Gallery />
+        <div id="gallery" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 lg:row-start-4 lg:col-start-1 flex flex-col hover:z-20 transition-all duration-500">
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-accent/20 pb-2 text-3d text-accent">Gallery & AI Generator</h2>
+          <div className="text-3d flex-1">
+            <Gallery />
+          </div>
         </div>
 
         {/* 7. Sponsors */}
-        <div id="sponsors" className="bento-item col-span-12 flex flex-col md:flex-row items-center gap-6 py-6 overflow-hidden relative">
-          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/60 md:pr-4 md:border-r border-white/10 p-2 md:p-0 rounded backdrop-blur-md">
-            <span className="text-[10px] font-black opacity-40 uppercase tracking-[0.5em] text-center">Official Sponsors</span>
+        <div id="sponsors" className="bento-item col-span-12 flex flex-col md:flex-row items-center gap-6 py-6 overflow-hidden relative border-y-accent/20">
+          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/80 md:pr-4 md:border-r border-accent/20 p-2 md:p-0 rounded backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.1)] text-3d">
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-center text-accent">Official Sponsors</span>
           </div>
           
-          <div className="flex-1 w-full overflow-hidden relative flex items-center h-12 mask-fade-edges">
+          <div className="flex-1 w-full overflow-hidden relative flex items-center h-12 mask-fade-edges text-3d">
             <motion.div 
               className="flex items-center gap-16 absolute whitespace-nowrap"
               animate={{ x: ["0%", "-50%"] }}
@@ -416,18 +420,18 @@ export default function App() {
             >
               {[
                 { name: "Amy's Private Range", url: "#", style: "font-bold text-lg tracking-tighter uppercase" },
-                { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-orange-400 uppercase" },
-                { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase" },
-                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase" },
-                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase" },
+                { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
+                { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
+                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
+                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
                 /* Duplicate for seamless infinite scroll loop */
                 { name: "Amy's Private Range", url: "#", style: "font-bold text-lg tracking-tighter uppercase" },
-                { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-orange-400 uppercase" },
-                { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase" },
-                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase" },
-                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase" },
+                { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
+                { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
+                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
+                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
               ].map((s, i) => (
-                <a key={i} href={s.url} target={s.url !== "#" ? "_blank" : undefined} rel="noopener noreferrer" className={`${s.style} opacity-70 hover:opacity-100 transition-opacity`}>
+                <a key={i} href={s.url} target={s.url !== "#" ? "_blank" : undefined} rel="noopener noreferrer" className={`${s.style} opacity-70 hover:opacity-100 transition-all hover:scale-110 inline-block`}>
                   {s.name}
                 </a>
               ))}
@@ -436,15 +440,15 @@ export default function App() {
         </div>
 
         {/* 8. Event Location & Venue Map */}
-        <div id="location" className="bento-item col-span-12 flex flex-col md:flex-row gap-6 p-6">
-           <div className="w-full md:w-1/3 flex flex-col justify-between">
+        <div id="location" className="bento-item col-span-12 flex flex-col md:flex-row gap-6 p-6 hover:z-20 transition-all duration-500">
+           <div className="w-full md:w-1/3 flex flex-col justify-between text-3d z-10">
               <div>
-                <h2 className="text-xl font-bold uppercase tracking-wider mb-2 border-b border-white/10 pb-4 text-accent">Venue Location</h2>
+                <h2 className="text-xl font-bold uppercase tracking-wider mb-2 border-b border-accent/20 pb-4 text-accent drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">Venue Location</h2>
                 <div className="space-y-4 font-medium text-sm opacity-80 mt-4 leading-relaxed">
                    <p>Join us at the heart of the Western Province for the highly anticipated David Isaacs Classic 2026.</p>
-                   <p className="flex items-start gap-3 text-white">
-                      <MapPin size={24} className="shrink-0 mt-0.5 text-accent" />
-                      <span>Cape Town Central<br/>Western Province<br/>South Africa</span>
+                   <p className="flex items-start gap-3 text-white bg-black/40 p-3 rounded-lg border border-white/5">
+                      <MapPin size={24} className="shrink-0 mt-0.5 text-accent animate-bounce" />
+                      <span className="font-mono text-xs">Cape Town Central<br/>Western Province<br/>South Africa</span>
                    </p>
                 </div>
               </div>
@@ -452,7 +456,7 @@ export default function App() {
                 Get Directions
               </a>
            </div>
-           <div className="w-full md:w-2/3 h-64 md:h-[350px] rounded hover:opacity-100 transition-opacity overflow-hidden border border-white/10 grayscale hover:grayscale-0 relative glass">
+           <div className="w-full md:w-2/3 h-64 md:h-[350px] rounded hover:opacity-100 transition-opacity overflow-hidden border-2 border-accent/20 hover:border-accent shadow-[0_0_20px_rgba(255,215,0,0.1)] grayscale-0 relative glass text-3d">
                <iframe 
                       title="Google Maps Location Cape Town"
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d105886.99285093748!2d18.36159670732386!3d-33.91458999908611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc500f8826eed7%3A0x687fe1fc2828aa87!2sCape%20Town!5e0!3m2!1sen!2sza!4v1714138128365!5m2!1sen!2sza" 
@@ -468,9 +472,9 @@ export default function App() {
         </div>
 
         {/* 9. Dedicated Rules & Regulations */}
-        <div id="rules" className="bento-item col-span-12 flex flex-col bg-black/40">
-           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-white/10 pb-4 text-accent">WPNBBF Official Rules & Regulations</h2>
-           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div id="rules" className="bento-item col-span-12 flex flex-col bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-t-accent hover:z-20 transition-all duration-500">
+           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-accent/20 pb-4 text-accent text-3d drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">WPNBBF Official Rules & Regulations</h2>
+           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-3d">
              <div className="space-y-4">
                <h3 className="font-bold text-sm uppercase tracking-widest opacity-90 border-l-2 border-accent pl-3">Eligibility & Integrity</h3>
                <ul className="list-disc list-inside text-xs opacity-70 space-y-3 leading-relaxed">
