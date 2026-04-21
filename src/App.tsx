@@ -234,6 +234,7 @@ export default function App() {
           <span className="text-xl font-black italic cursor-pointer" onClick={() => window.scrollTo(0, 0)}>WPNBBF</span>
           <div className="hidden lg:flex gap-6 text-sm font-medium opacity-70 uppercase tracking-widest">
             <button onClick={() => scrollTo('about')} className="hover:opacity-100 transition-opacity">ABOUT</button>
+            <button onClick={() => scrollTo('history')} className="hover:opacity-100 transition-opacity">HISTORY</button>
             <button onClick={() => scrollTo('athletes')} className="hover:opacity-100 transition-opacity">ATHLETES</button>
             <button onClick={() => scrollTo('gallery')} className="hover:opacity-100 transition-opacity">GALLERY</button>
             <button onClick={() => scrollTo('location')} className="hover:opacity-100 transition-opacity">LOCATION</button>
@@ -282,6 +283,54 @@ export default function App() {
               <p className="font-bold uppercase tracking-wider mb-2 text-accent">100% Natural Guarantee</p>
               <p className="text-xs opacity-70">Dedicated to polygraph-tested and urine-tested shows strictly conforming with international natural bodybuilding standards.</p>
               <button onClick={() => scrollTo('rules')} className="mt-4 px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 transition-colors text-[10px] uppercase font-bold tracking-widest">Read Full Rules</button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3.5 History of David Isaacs */}
+        <div id="history" className="bento-item col-span-12 lg:col-span-8 flex flex-col relative overflow-hidden group">
+          <div className="absolute inset-0 z-[-1] bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-20 transition-opacity duration-700" style={{backgroundImage: "url('/gallery/david-2.jpg')"}}></div>
+          <h2 className="text-xl font-black mb-4 uppercase tracking-widest text-accent border-b border-accent/20 pb-2">The Legend: David Isaacs</h2>
+          <div className="flex flex-col md:flex-row gap-6 relative z-10 w-full font-sans">
+            <div className="flex-1 space-y-4 text-sm opacity-90 leading-relaxed font-medium">
+              <p>
+                <span className="font-bold text-white drop-shadow-md">Humble Beginnings:</span> David was born in Uniondale and moved to Cape Town when his mom got a job as a domestic worker. 
+                At the age of 18, he weighed only 50kg. Through sheer willpower and dedication over ten years, he bulked up to an astounding 112kg when he eventually competed in the Mr. Universe competition in London.
+              </p>
+              <p>
+                <span className="font-bold text-white drop-shadow-md">Grueling Regimen:</span> He built his incredible physique the hard way. Relying on heavy, rudimentary homemade iron, he trained relentlessly in backyards and the open air. He later moved his intense workouts into a "hokkie" (makeshift structure), focusing fiercely on pure foundational strength years before modern commercial gyms were accessible.
+              </p>
+              <p>
+                <span className="font-bold text-white drop-shadow-md">Global Stage & Rivalries:</span> Isaacs participated in the legendary 1966 Mr. Universe in London alongside 130 contestants from 30 nations. It was here in the highly-contested "tall men" division that David stood shoulder-to-shoulder competing against a young, 19-year-old Austrian phenom named Arnold Schwarzenegger.
+              </p>
+            </div>
+            
+            <div className="flex-1 space-y-4 text-sm opacity-90 leading-relaxed font-medium flex flex-col">
+               <img 
+                 src="/gallery/david-recent.jpg" 
+                 alt="David Isaacs flexing" 
+                 referrerPolicy="no-referrer"
+                 className="w-full h-40 object-cover rounded-md border border-white/10 shadow-lg mb-2 object-top"
+                 onError={(e) => {
+                   // Fallback for preview if image hasn't been uploaded yet
+                   (e.target as HTMLImageElement).style.display = 'none';
+                 }}
+               />
+               <p>
+                 Sharing the stage with future bodybuilding and political royalty created a historic, cross-cultural lineup remembered as a defining moment in Golden Era natural bodybuilding.
+               </p>
+               <div className="bg-black/50 p-4 rounded border-l-2 border-accent mt-auto mb-3">
+                  <p className="italic">"He later participated in the 1969 Mr. Universe, Mr. World, and Mr. International contests. Today, the legend continues to inspire and he lives locally in Heideveld."</p>
+               </div>
+               
+               <a 
+                 href="https://www.google.com/search?q=David+Isaacs+Cape+Town+Bodybuilder+Mr+Universe" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/20 rounded-md transition-colors text-[10px] uppercase font-bold tracking-widest text-accent"
+               >
+                 Search More About His Legacy
+               </a>
             </div>
           </div>
         </div>
