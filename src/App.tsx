@@ -156,43 +156,7 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
 }
 
 function Gallery() {
-  const [items, setItems] = useState<any[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [prompt, setPrompt] = useState('');
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    return subscribeToGallery(setItems);
-  }, []);
-
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!prompt.trim()) return;
-    setIsGenerating(true);
-    try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await response.json();
-      if (data.imageUrl) {
-        await addGalleryItem({
-          title: prompt.slice(0, 30) + '...',
-          year: new Date().getFullYear().toString(),
-          imageUrl: data.imageUrl
-        });
-        setPrompt('');
-      } else {
-         alert("Failed to generate: " + (data.error || "Unknown error"));
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to generate image.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const staticItems = [
     {
@@ -221,9 +185,7 @@ function Gallery() {
     }
   ];
 
-  const allItems = [...staticItems, ...items];
-
-  const filteredItems = allItems.filter(item => 
+  const filteredItems = staticItems.filter(item => 
     item.title?.toLowerCase().includes(filter.toLowerCase()) || 
     item.year?.toLowerCase().includes(filter.toLowerCase())
   );
@@ -238,19 +200,6 @@ function Gallery() {
           onChange={(e) => setFilter(e.target.value)}
           className="w-full bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
         />
-        <form onSubmit={handleGenerate} className="flex gap-2">
-           <input 
-            type="text" 
-            placeholder="Enter AI prompt..." 
-            value={prompt}
-            disabled={isGenerating}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="flex-1 min-w-0 bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
-          />
-          <button disabled={isGenerating} type="submit" className="accent-btn px-4 py-2 rounded-md text-[10px] flex items-center shrink-0">
-            {isGenerating ? <Loader2 className="animate-spin" size={14} /> : 'Generate Visual'}
-          </button>
-        </form>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -442,7 +391,7 @@ export default function App() {
 
         {/* 6. Gallery */}
         <div id="gallery" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 lg:row-start-4 lg:col-start-1 flex flex-col hover:z-20 transition-all duration-500">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-accent/20 pb-2 text-3d text-accent">Gallery & AI Generator</h2>
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-accent/20 pb-2 text-3d text-accent">Legendary Moments Gallery</h2>
           <div className="text-3d flex-1">
             <Gallery />
           </div>
