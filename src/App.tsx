@@ -54,13 +54,24 @@ function RegistrationForm() {
     try {
       await addRegistration(data);
       
-      // Send confirmation SMS
+      // Send confirmation SMS to user
       await fetch('/api/send-sms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: data.phone,
-          message: `Hi ${data.fullName}, your registration for the David Isaacs Classic 2026 (${data.category}) is confirmed! We will contact you soon. - WPNBBF Team.`
+          message: `Hi ${data.fullName}, your registration for the David Isaacs Classic 2026 (${data.category}) is confirmed! We will contact you soon. - WPNBF Team.`
+        })
+      });
+
+      // Send email notification to busta850310@gmail.com
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: "busta850310@gmail.com",
+          subject: `New Athlete Registration - ${data.fullName}`,
+          text: `A new athlete has registered for the David Isaacs Classic.\n\nName: ${data.fullName}\nEmail: ${data.email}\nPhone: ${data.phone}\nCategory: ${data.category}\n`
         })
       });
 
@@ -106,7 +117,7 @@ function RegistrationForm() {
         {isSubmitting ? <Loader2 className="animate-spin" /> : 'SUBMIT ENTRY'}
       </button>
       {success && <p className="text-green-400 text-center text-xs">Registration successful! We will contact you soon.</p>}
-      <p className="text-[9px] opacity-40 text-center uppercase mt-2">By registering, you agree to the WPNBBF Rules & Privacy Policy</p>
+      <p className="text-[9px] opacity-40 text-center uppercase mt-2">By registering, you agree to the WPNBF Rules & Privacy Policy</p>
     </form>
   );
 }
@@ -121,7 +132,7 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
     if (navigator.share) {
       navigator.share({
         title: item.title,
-        text: `Check out ${item.title} from WPNBBF!`,
+        text: `Check out ${item.title} from WPNBF!`,
         url: item.imageUrl,
       }).catch(console.error);
     } else {
@@ -222,7 +233,7 @@ export default function App() {
       {/* Navbar */}
       <nav className="h-16 flex items-center justify-between px-4 md:px-8 bg-black/50 border-b border-white/10 shrink-0 sticky top-0 z-50 glass">
         <div className="flex items-center gap-8">
-          <span className="text-xl font-black italic cursor-pointer" onClick={() => window.scrollTo(0, 0)}>WPNBBF</span>
+          <span className="text-xl font-black italic cursor-pointer" onClick={() => window.scrollTo(0, 0)}>WPNBF</span>
           <div className="hidden lg:flex gap-6 text-sm font-medium opacity-70 uppercase tracking-widest">
             <button onClick={() => scrollTo('about')} className="hover:opacity-100 transition-opacity">ABOUT</button>
             <button onClick={() => scrollTo('history')} className="hover:opacity-100 transition-opacity">HISTORY</button>
@@ -263,12 +274,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* 3. About WPNBBF */}
+        {/* 3. About WPNBF */}
         <div id="about" className="bento-item col-span-12 lg:col-span-8 hover:z-20 transition-all duration-500">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent">About WPNBBF</h2>
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent">About WPNBF</h2>
           <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium text-3d">
             <div>
-              <p className="mb-4">The Western Province Natural Bodybuilding Federation (WPNBBF) was established in 1951, dedicated to promoting drug-free bodybuilding and fitness in the region. Our mission is to protect the integrity of the sport.</p>
+              <p className="mb-4">The Western Province Natural Bodybuilding Federation (WPNBF) was established in 1951, dedicated to promoting drug-free bodybuilding and fitness in the region. Our mission is to protect the integrity of the sport.</p>
               <p>We uphold the highest standards of natural competition, providing athletes a fair stage to showcase their hard work, dedication, and pure genetic potential.</p>
             </div>
             <div className="bg-white/5 p-4 rounded-lg border border-white/5 flex flex-col justify-center items-center text-center shadow-[inset_0_0_20px_rgba(255,215,0,0.05)] border-t-accent/30">
@@ -413,13 +424,13 @@ export default function App() {
                 { name: "Amy's Private Range", url: "#", style: "font-bold text-lg tracking-tighter uppercase" },
                 { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
                 { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
-                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
+                { name: "WPNBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
                 { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
                 /* Duplicate for seamless infinite scroll loop */
                 { name: "Amy's Private Range", url: "#", style: "font-bold text-lg tracking-tighter uppercase" },
                 { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
                 { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
-                { name: "WPNBBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
+                { name: "WPNBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
                 { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
               ].map((s, i) => (
                 <a key={i} href={s.url} target={s.url !== "#" ? "_blank" : undefined} rel="noopener noreferrer" className={`${s.style} opacity-70 hover:opacity-100 transition-all hover:scale-110 inline-block`}>
@@ -464,7 +475,7 @@ export default function App() {
 
         {/* 9. Dedicated Rules & Regulations */}
         <div id="rules" className="bento-item col-span-12 flex flex-col bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-t-accent hover:z-20 transition-all duration-500">
-           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-accent/20 pb-4 text-accent text-3d drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">WPNBBF Official Rules & Regulations</h2>
+           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-accent/20 pb-4 text-accent text-3d drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">WPNBF Official Rules & Regulations</h2>
            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-3d">
              <div className="space-y-4">
                <h3 className="font-bold text-sm uppercase tracking-widest opacity-90 border-l-2 border-accent pl-3">Eligibility & Integrity</h3>
@@ -512,7 +523,7 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-8 h-auto py-4 md:h-16 flex flex-col md:flex-row items-center justify-between px-8 bg-black/50 border-t border-white/10 text-[10px] font-medium opacity-70 uppercase tracking-widest gap-4 shrink-0 glass">
         <div className="flex flex-wrap items-center justify-center gap-6">
-          <span className="font-bold">&copy; {new Date().getFullYear()} WPNBBF</span>
+          <span className="font-bold">&copy; {new Date().getFullYear()} WPNBF</span>
           <a href="#about" className="hover:text-accent transition-colors">FAQ</a>
           <a href="#about" className="hover:text-accent transition-colors">Contact Us</a>
           <a href="#location" onClick={(e) => { e.preventDefault(); scrollTo('location'); }} className="hover:text-accent transition-colors">Location</a>

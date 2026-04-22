@@ -100,4 +100,49 @@ app.post("/api/send-sms", async (req, res) => {
   }
 });
 
+import nodemailer from 'nodemailer';
+
+let transporter: nodemailer.Transporter | null = null;
+
+app.post("/api/send-email", async (req, res) => {
+  try {
+    const { subject, text, to } = req.body;
+    
+    if (!subject || !text) {
+      return res.status(400).json({ error: "Missing 'subject' or 'text' in request body" });
+    }
+
+    if (!transporter) {
+      const user = process.env.SMTP_USER;
+      const pass = process.env.SMTP_PASSWORD;
+      const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+      const port = Number(process.env.SMTP_PORT) || 587;
+      
+      if (!user || !pass) {
+        console.warn("SMTP credentials not configured. Skipping Email.");
+        return res.status(200).json({ success: true, fake: true, message: "SMTP credentials missing; Email logging only." });
+      }
+      
+      transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass }
+      });
+    }
+
+    await transporter.sendMail({
+      from: process.env.SMTP_USER || '"WPNBF App" <no-reply@wpnbf.com>',
+      to: to || "busta850310@gmail.com",
+      subject,
+      text,
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error sending Email:", error);
+    res.status(500).json({ error: "Failed to send Email" });
+  }
+});
+
 export default app;
