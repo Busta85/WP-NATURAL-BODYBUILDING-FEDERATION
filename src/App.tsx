@@ -3,10 +3,14 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Facebook, Instagram, Twitter, MapPin, Share2, Loader2, Sparkles, Phone } from 'lucide-react';
+import { Facebook, Instagram, Twitter, MapPin, Share2, Loader2, Sparkles, Phone, MessageCircle, X } from 'lucide-react';
 import { addRegistration, addGalleryItem, subscribeToGallery } from './lib/firebase';
 import { cn } from './lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 
 const EVENT_DATE = new Date('2026-06-13T08:00:00+02:00'); // Assuming South African Standard Time (SAST) since it's in Cape Town
 
@@ -168,6 +172,42 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
 
 function Gallery() {
   const [filter, setFilter] = useState('');
+  const [dbItems, setDbItems] = useState<{id: string, title: string, year: string, imageUrl: string}[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToGallery((items) => {
+      setDbItems(items);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'A highly aesthetic natural bodybuilder on stage hitting a classic pose' })
+      });
+      
+      const data = await response.json();
+      if (data.imageUrl) {
+        await addGalleryItem({
+          title: 'AI Generated Natural Bodybuilder',
+          year: new Date().getFullYear().toString(),
+          imageUrl: data.imageUrl
+        });
+      } else {
+        alert(data.error || 'Failed to generate image');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error generating image');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const staticItems = [
     {
@@ -196,21 +236,31 @@ function Gallery() {
     }
   ];
 
-  const filteredItems = staticItems.filter(item => 
+  const allItems = [...dbItems, ...staticItems];
+
+  const filteredItems = allItems.filter(item => 
     item.title?.toLowerCase().includes(filter.toLowerCase()) || 
     item.year?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input 
           type="text" 
           placeholder="Filter by title or year..." 
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
+          className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
         />
+        <button 
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="accent-btn shrink-0 flex items-center justify-center gap-2"
+        >
+          {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} 
+          {isGenerating ? 'Generating...' : 'Generate AI Image'}
+        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -219,6 +269,94 @@ function Gallery() {
         ))}
       </div>
     </div>
+  );
+}
+
+function Chatbot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<{role: 'user' | 'model', content: string}[]>([
+    { role: 'model', content: "Hello! I'm the WPNBF assistant. How can I help you regarding natural bodybuilding today?" }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = input;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
+
+    try {
+      const contents = messages.map(m => ({
+        role: m.role,
+        parts: [{ text: m.content }]
+      }));
+      contents.push({ role: 'user', parts: [{ text: userMessage }] });
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-flash-preview',
+        contents: contents as any,
+        config: {
+          systemInstruction: 'You are a helpful assistant for the WPNBF (Western Province Natural Bodybuilding Federation). You answer questions about natural bodybuilding, David Isaacs, and the WPNBF rules.',
+        }
+      });
+      
+      const text = response.text;
+      setMessages(prev => [...prev, { role: 'model', content: text || "Sorry, I couldn't understand that." }]);
+    } catch (err) {
+      console.error("Chat error:", err);
+      setMessages(prev => [...prev, { role: 'model', content: "Error connecting to AI. Please try again later." }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button 
+        onClick={() => setIsOpen(true)}
+        className={cn("fixed bottom-4 right-4 z-50 accent-btn p-4 rounded-full shadow-lg", isOpen ? 'hidden' : 'flex')}
+      >
+        <MessageCircle fill="currentColor" />
+      </button>
+
+      {isOpen && (
+        <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] h-96 bg-[#111] border border-accent/20 rounded-xl shadow-2xl flex flex-col overflow-hidden glass">
+          <div className="p-4 border-b border-accent/20 flex justify-between items-center bg-black/40 shrink-0">
+            <h3 className="font-bold text-accent text-sm tracking-wider uppercase">WPNBF Assistant</h3>
+            <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100"><X size={16}/></button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+             {messages.map((m, i) => (
+                <div key={i} className={cn("flex flex-col", m.role === 'user' ? 'items-end' : 'items-start')}>
+                    <span className="opacity-50 text-[10px] uppercase mb-1">{m.role === 'user' ? 'You' : 'Assistant'}</span>
+                    <div className={cn("p-2 rounded-md max-w-[85%]", m.role === 'user' ? 'bg-accent text-black font-bold' : 'bg-white/10')}>
+                      {m.content}
+                    </div>
+                </div>
+             ))}
+             {isLoading && <div className="text-accent text-[10px] uppercase animate-pulse">Thinking...</div>}
+          </div>
+
+          <form onSubmit={sendMessage} className="p-3 border-t border-accent/20 bg-black/40 flex gap-2 shrink-0">
+            <input 
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              placeholder="Ask about WPNBF..."
+              className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-accent"
+              disabled={isLoading}
+            />
+            <button type="submit" disabled={isLoading || !input.trim()} className="bg-accent text-black px-3 py-1 rounded text-xs font-bold disabled:opacity-50">
+              Send
+            </button>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -543,6 +681,7 @@ export default function App() {
           <span className="text-black font-bold bg-white/90 px-2 py-1 rounded hidden lg:block">Western Province, ZA</span>
         </div>
       </footer>
+      <Chatbot />
     </div>
   );
 }

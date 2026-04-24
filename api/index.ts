@@ -20,34 +20,19 @@ app.post("/api/generate-image", async (req, res) => {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-image-preview',
-      contents: {
-        parts: [
-          { text: prompt },
-          { text: "Western Province natural bodybuilding aesthetic, natural muscle, professional stage lighting, high quality" },
-        ],
-      },
+    const response = await ai.models.generateImages({
+      model: 'imagen-3.0-generate-001',
+      prompt: prompt + ", Western Province natural bodybuilding aesthetic, natural muscle, professional stage lighting, high quality",
       config: {
-        imageConfig: {
-          aspectRatio: "1:1",
-          imageSize: "1K"
-        }
-      },
+        numberOfImages: 1,
+        outputMimeType: "image/jpeg",
+        aspectRatio: "1:1"
+      }
     });
 
-    let base64Image = null;
-    if (response.candidates && response.candidates[0] && response.candidates[0].content) {
-        for (const part of response.candidates[0].content.parts) {
-          if (part.inlineData) {
-            base64Image = part.inlineData.data;
-            break;
-          }
-        }
-    }
-
-    if (base64Image) {
-        const imageUrl = `data:image/png;base64,${base64Image}`;
+    if (response.generatedImages && response.generatedImages.length > 0) {
+        const base64Image = response.generatedImages[0].image.imageBytes;
+        const imageUrl = `data:image/jpeg;base64,${base64Image}`;
         res.json({ imageUrl });
     } else {
         res.status(500).json({ error: "No image found in response" });
