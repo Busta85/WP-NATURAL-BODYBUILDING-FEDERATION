@@ -3,8 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Facebook, Instagram, Twitter, MapPin, Share2, Loader2, Sparkles, Phone, MessageCircle, X } from 'lucide-react';
-import { addRegistration, addGalleryItem, subscribeToGallery } from './lib/firebase';
+import { Facebook, Instagram, Twitter, MapPin, Loader2, Phone, MessageCircle, X } from 'lucide-react';
+import { addRegistration } from './lib/firebase';
 import { cn } from './lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { GoogleGenAI } from "@google/genai";
@@ -123,152 +123,6 @@ function RegistrationForm() {
       {success && <p className="text-green-400 text-center text-xs">Registration successful! We will contact you soon.</p>}
       <p className="text-[9px] opacity-40 text-center uppercase mt-2">By registering, you agree to the WPNBF Rules & Privacy Policy</p>
     </form>
-  );
-}
-
-function GalleryItem({ item, index }: { key?: string | number, item: any; index: number }) {
-  const { scrollYProgress } = useScroll();
-  // Using index to vary the parallax a bit
-  const y = useTransform(scrollYProgress, [0, 1], [0, -100 + (index % 3) * 30]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 1.05]);
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: item.title,
-        text: `Check out ${item.title} from WPNBF!`,
-        url: item.imageUrl,
-      }).catch(console.error);
-    } else {
-      alert("Sharing not supported on this browser.");
-    }
-  };
-
-  return (
-    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded group bg-white/5 border border-white/5 flex items-center justify-center">
-      <img 
-        src={item.imageUrl} 
-        alt={item.title} 
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 aspect-[3/4]" 
-        referrerPolicy="no-referrer"
-        onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none';
-          (e.target as HTMLImageElement).parentElement?.classList.add('aspect-[3/4]');
-          const textNode = document.createElement('span');
-          textNode.className = 'text-[10px] text-white/40 uppercase absolute';
-          textNode.innerText = 'Upload image to public/gallery';
-          (e.target as HTMLImageElement).parentElement?.appendChild(textNode);
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 flex flex-col justify-end">
-        <h4 className="font-bold text-[10px] uppercase truncate">{item.title}</h4>
-      </div>
-      <button onClick={handleShare} className="absolute top-2 right-2 p-1 bg-black/60 rounded text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:bg-black/90">
-        <Share2 size={12} /> Share
-      </button>
-    </motion.div>
-  );
-}
-
-function Gallery() {
-  const [filter, setFilter] = useState('');
-  const [dbItems, setDbItems] = useState<{id: string, title: string, year: string, imageUrl: string}[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToGallery((items) => {
-      setDbItems(items);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: 'A highly aesthetic natural bodybuilder on stage hitting a classic pose' })
-      });
-      
-      const data = await response.json();
-      if (data.imageUrl) {
-        await addGalleryItem({
-          title: 'AI Generated Natural Bodybuilder',
-          year: new Date().getFullYear().toString(),
-          imageUrl: data.imageUrl
-        });
-      } else {
-        alert(data.error || 'Failed to generate image');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error generating image');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const staticItems = [
-    {
-      id: 'static-1',
-      title: 'Legendary Posing',
-      year: '1960s',
-      imageUrl: '/gallery/david-posing.jpg'
-    },
-    {
-      id: 'static-2',
-      title: 'Classic Physique',
-      year: '1960s',
-      imageUrl: '/gallery/david-younger.jpg'
-    },
-    {
-      id: 'static-3',
-      title: 'With Arnold Schwarzenegger',
-      year: '1966',
-      imageUrl: '/gallery/david-arnold.jpg'
-    },
-    {
-      id: 'static-4',
-      title: 'David Isaacs Today',
-      year: 'Recent',
-      imageUrl: '/gallery/david-recent.jpg'
-    }
-  ];
-
-  const allItems = [...dbItems, ...staticItems];
-
-  const filteredItems = allItems.filter(item => 
-    item.title?.toLowerCase().includes(filter.toLowerCase()) || 
-    item.year?.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-2">
-        <input 
-          type="text" 
-          placeholder="Filter by title or year..." 
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
-        />
-        <button 
-          onClick={handleGenerate}
-          disabled={isGenerating}
-          className="accent-btn shrink-0 flex items-center justify-center gap-2"
-        >
-          {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} 
-          {isGenerating ? 'Generating...' : 'Generate AI Image'}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        {filteredItems.map((item, i) => (
-          <GalleryItem key={item.id} item={item} index={i} />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -405,17 +259,19 @@ export default function App() {
         </div>
         
         {/* 2. Registration Form */}
-        <div id="athletes" className="bento-item col-span-12 lg:col-span-4 lg:row-span-2 flex flex-col hover:z-20 transition-all duration-500">
-          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-white/10 pb-2 text-3d">Athlete Registration</h2>
-          <div className="text-3d w-full">
+        <div id="athletes" className="bento-item col-span-12 lg:col-span-4 lg:row-span-2 flex flex-col hover:z-20 transition-all duration-500 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80')"}}></div>
+          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-white/10 pb-2 text-3d relative z-10">Athlete Registration</h2>
+          <div className="text-3d w-full relative z-10">
             <RegistrationForm />
           </div>
         </div>
 
         {/* 3. About WPNBF */}
-        <div id="about" className="bento-item col-span-12 lg:col-span-8 hover:z-20 transition-all duration-500">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent">About WPNBF</h2>
-          <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium text-3d">
+        <div id="about" className="bento-item col-span-12 lg:col-span-8 hover:z-20 transition-all duration-500 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1526506114642-54bc7b99c82c?auto=format&fit=crop&q=80')"}}></div>
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent relative z-10">About WPNBF</h2>
+          <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium text-3d relative z-10">
             <div>
               <p className="mb-4">The Western Province Natural Bodybuilding Federation (WPNBF) was established in 1951, dedicated to promoting drug-free bodybuilding and fitness in the region. Our mission is to protect the integrity of the sport.</p>
               <p>We uphold the highest standards of natural competition, providing athletes a fair stage to showcase their hard work, dedication, and pure genetic potential.</p>
@@ -479,7 +335,8 @@ export default function App() {
 
         {/* 4. Core Organizers - POP OUT */}
         <div className="bento-item col-span-12 md:col-span-6 lg:col-span-4 flex flex-col justify-between relative overflow-hidden group border-accent/30 shadow-[0_0_15px_rgba(255,215,0,0.1)] hover:border-accent hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&q=80')"}}></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-500 pointer-events-none z-0"></div>
           
           <div className="relative z-10 flex flex-col h-full">
             <div className="flex items-center gap-3 mb-6">
@@ -526,9 +383,10 @@ export default function App() {
         </div>
 
         {/* 5. View Categories */}
-        <div className="bento-item col-span-12 md:col-span-6 lg:col-span-4 lg:row-start-5 lg:col-start-9 flex flex-col justify-start hover:z-20 transition-all duration-500">
-          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent">Available Categories</h2>
-          <div className="flex flex-wrap gap-2 text-3d">
+        <div className="bento-item col-span-12 md:col-span-6 lg:col-span-4 lg:row-start-5 lg:col-start-9 flex flex-col justify-start hover:z-20 transition-all duration-500 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&q=80')"}}></div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent relative z-10">Available Categories</h2>
+          <div className="flex flex-wrap gap-2 text-3d relative z-10">
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Bodybuilding</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Physique</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Bikini Model</span>
@@ -538,17 +396,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* 6. Gallery */}
-        <div id="gallery" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 lg:row-start-4 lg:col-start-1 flex flex-col hover:z-20 transition-all duration-500">
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-accent/20 pb-2 text-3d text-accent">Legendary Moments Gallery</h2>
-          <div className="text-3d flex-1">
-            <Gallery />
-          </div>
-        </div>
-
         {/* 7. Sponsors */}
-        <div id="sponsors" className="bento-item col-span-12 flex flex-col md:flex-row items-center gap-6 py-6 overflow-hidden relative border-y-accent/20">
-          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/80 md:pr-4 md:border-r border-accent/20 p-2 md:p-0 rounded backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.1)] text-3d">
+        <div id="sponsors" className="bento-item col-span-12 flex flex-col md:flex-row items-center gap-6 py-6 overflow-hidden relative border-y-accent/20 group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80')"}}></div>
+          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/80 md:pr-4 md:border-r border-accent/20 p-2 md:p-0 rounded backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.1)] text-3d relative">
             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-center text-accent">Official Sponsors</span>
           </div>
           
@@ -580,8 +431,9 @@ export default function App() {
         </div>
 
         {/* 8. Event Location & Venue Map */}
-        <div id="location" className="bento-item col-span-12 flex flex-col md:flex-row gap-6 p-6 hover:z-20 transition-all duration-500">
-           <div className="w-full md:w-1/3 flex flex-col justify-between text-3d z-10">
+        <div id="location" className="bento-item col-span-12 flex flex-col md:flex-row gap-6 p-6 hover:z-20 transition-all duration-500 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&q=80')"}}></div>
+           <div className="w-full md:w-1/3 flex flex-col justify-between text-3d z-10 relative">
               <div>
                 <h2 className="text-xl font-bold uppercase tracking-wider mb-2 border-b border-accent/20 pb-4 text-accent drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">Venue Location</h2>
                 <div className="space-y-4 font-medium text-sm opacity-80 mt-4 leading-relaxed">
@@ -612,9 +464,10 @@ export default function App() {
         </div>
 
         {/* 9. Dedicated Rules & Regulations */}
-        <div id="rules" className="bento-item col-span-12 flex flex-col bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-t-accent hover:z-20 transition-all duration-500">
-           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-accent/20 pb-4 text-accent text-3d drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">WPNBF Official Rules & Regulations</h2>
-           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-3d">
+        <div id="rules" className="bento-item col-span-12 flex flex-col bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-t-accent hover:z-20 transition-all duration-500 relative overflow-hidden group">
+           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1594882645126-14020914d58d?auto=format&fit=crop&q=80')"}}></div>
+           <h2 className="text-xl font-bold mb-6 uppercase tracking-wider border-b border-accent/20 pb-4 text-accent text-3d drop-shadow-[0_0_10px_rgba(255,215,0,0.3)] relative z-10">WPNBF Official Rules & Regulations</h2>
+           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-3d relative z-10">
              <div className="space-y-4">
                <h3 className="font-bold text-sm uppercase tracking-widest opacity-90 border-l-2 border-accent pl-3">Eligibility & Integrity</h3>
                <ul className="list-disc list-inside text-xs opacity-70 space-y-3 leading-relaxed">
