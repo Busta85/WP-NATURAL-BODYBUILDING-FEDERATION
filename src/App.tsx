@@ -230,7 +230,6 @@ export default function App() {
             <button onClick={() => scrollTo('about')} className="hover:opacity-100 transition-opacity">ABOUT</button>
             <button onClick={() => scrollTo('history')} className="hover:opacity-100 transition-opacity">HISTORY</button>
             <button onClick={() => scrollTo('athletes')} className="hover:opacity-100 transition-opacity">ATHLETES</button>
-            <button onClick={() => scrollTo('gallery')} className="hover:opacity-100 transition-opacity">GALLERY</button>
             <button onClick={() => scrollTo('location')} className="hover:opacity-100 transition-opacity">LOCATION</button>
             <button onClick={() => scrollTo('rules')} className="hover:opacity-100 transition-opacity">RULES</button>
             <button onClick={() => scrollTo('sponsors')} className="hover:opacity-100 transition-opacity">SPONSORS</button>
