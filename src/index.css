@@ -83,6 +83,7 @@
     gap: 16px;
     padding: 16px;
     flex-grow: 1;
+    perspective: 1500px;
   }
   .bento-item {
     border-radius: 16px; 
@@ -96,7 +97,8 @@
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+    transform-style: preserve-3d;
   }
   /* Techy detail corners for cards */
   .bento-item::after {
@@ -107,11 +109,18 @@
     border-left: 15px solid transparent;
   }
   .bento-item:hover {
-    transform: translateY(-2px);
+    transform: translateZ(40px) translateY(-5px) rotateX(2deg) rotateY(-2deg);
     background: rgba(30, 30, 30, 0.5);
     border-color: rgba(255, 215, 0, 0.5);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 215, 0, 0.15);
+    box-shadow: -10px 20px 40px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 215, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     z-index: 10;
+  }
+  .bento-item > * {
+    transform: translateZ(20px);
+    transition: transform 0.4s ease;
+  }
+  .bento-item:hover > * {
+    transform: translateZ(40px);
   }
   
   .text-3d {
