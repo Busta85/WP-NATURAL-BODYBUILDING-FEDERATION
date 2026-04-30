@@ -375,6 +375,7 @@ export default function App() {
             <button onClick={() => scrollTo('about')} className="hover:opacity-100 transition-opacity">ABOUT</button>
             <button onClick={() => scrollTo('history')} className="hover:opacity-100 transition-opacity">HISTORY</button>
             <button onClick={() => scrollTo('athletes')} className="hover:opacity-100 transition-opacity">ATHLETES</button>
+            <button onClick={() => scrollTo('schedule')} className="hover:opacity-100 transition-opacity">SCHEDULE</button>
             <button onClick={() => scrollTo('gallery')} className="hover:opacity-100 transition-opacity">GALLERY</button>
             <button onClick={() => scrollTo('location')} className="hover:opacity-100 transition-opacity">LOCATION</button>
             <button onClick={() => scrollTo('rules')} className="hover:opacity-100 transition-opacity">RULES</button>
@@ -538,6 +539,33 @@ export default function App() {
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Women's Figure</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Classic Physique</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Masters Open</span>
+          </div>
+        </div>
+
+        {/* 5.5 Event Schedule */}
+        <div id="schedule" className="bento-item col-span-12 md:col-span-6 lg:col-span-4 lg:row-start-6 lg:col-start-9 flex flex-col justify-start hover:z-20 transition-all duration-500 relative overflow-hidden group">
+          <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80')"}}></div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent relative z-10 flex items-center justify-between">
+            <span>Event Schedule</span>
+            <span className="text-[10px] bg-accent text-black px-2 py-0.5 rounded font-black tracking-tighter">OCT 24, 2026</span>
+          </h2>
+          <div className="flex flex-col gap-3 text-3d relative z-10">
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <span className="text-sm font-bold opacity-90">Athlete Registration</span>
+              <span className="text-xs font-mono tracking-widest text-accent">08:00 AM</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <span className="text-sm font-bold opacity-90">Prejudging</span>
+              <span className="text-xs font-mono tracking-widest text-accent">10:00 AM</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+              <span className="text-sm font-bold opacity-90">Intermission</span>
+              <span className="text-xs font-mono tracking-widest text-accent">02:00 PM</span>
+            </div>
+            <div className="flex justify-between items-center pb-2">
+              <span className="text-sm font-bold opacity-90 flex items-center gap-2">Main Event Finals <span className="bg-red-600 w-2 h-2 rounded-full animate-pulse inline-block"></span></span>
+              <span className="text-xs font-mono tracking-widest text-accent">05:00 PM</span>
+            </div>
           </div>
         </div>
 

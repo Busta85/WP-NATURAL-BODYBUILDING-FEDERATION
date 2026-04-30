@@ -1,13 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-body: "Inter", sans-serif;
-  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "PT Serif", serif;
+  --font-heading: "Bebas Neue", sans-serif;
   
-  --color-bg: #050505;
-  --color-accent: #FFD700;
-  --color-text: #FFFFFF;
+  --color-bg: #291c14;
+  --color-accent: #d9772b;
+  --color-text: #f0dfc8;
 }
 
 @layer base {
@@ -16,37 +16,39 @@
     color: var(--color-text);
     font-family: var(--font-body);
     background-image: 
-      linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center center;
+      url('https://www.transparenttextures.com/patterns/old-wall.png'),
+      linear-gradient(135deg, #291c14 0%, #170e08 100%);
     background-attachment: fixed;
+  }
+  img {
+    filter: sepia(0.5) contrast(1.1) brightness(0.9);
   }
 }
 
 @layer components {
   .bold-header {
     font-family: var(--font-heading);
-    font-weight: 700;
+    font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: -0.05em;
-    line-height: 0.8;
-    text-shadow: 2px 2px 0px rgba(255, 215, 0, 0.8), -1px -1px 0px rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.05em;
+    line-height: 0.85;
+    text-shadow: 3px 3px 0px #8b4513, -1px -1px 0px #5c2c06;
   }
   .glass {
-    background: rgba(10, 10, 10, 0.8);
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    backdrop-filter: blur(8px);
+    background: rgba(30, 20, 15, 0.8);
+    border: 2px solid #8b4513;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
   }
   .accent-btn {
-    background: rgba(255, 215, 0, 0.1);
-    color: var(--color-accent);
+    background: #d9772b;
+    color: #f0dfc8;
     font-family: var(--font-heading);
-    font-weight: 700;
+    font-weight: 400;
+    font-size: 1.2rem;
     text-transform: uppercase;
     transition: all 0.2s linear;
-    border: 1px solid var(--color-accent);
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+    border: 2px solid #8b4513;
+    box-shadow: 4px 4px 0px #5a2e0e;
     letter-spacing: 0.1em;
     position: relative;
     overflow: hidden;
@@ -55,59 +57,59 @@
     content: "";
     position: absolute;
     top: 0; left: -100%; width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
     transition: all 0.4s ease;
   }
   .accent-btn:hover::before {
     left: 100%;
   }
   .accent-btn:hover {
-    background: var(--color-accent);
-    color: #000;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    background: #e68a44;
+    color: #fff;
+    box-shadow: 2px 2px 0px #5a2e0e;
+    transform: translate(2px, 2px);
   }
   .countdown-timer {
-    font-family: monospace;
+    font-family: var(--font-heading);
     letter-spacing: 2px;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     color: var(--color-accent);
   }
   .bento-container {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     grid-auto-rows: min-content;
-    gap: 16px;
-    padding: 16px;
+    gap: 20px;
+    padding: 20px;
     flex-grow: 1;
   }
   .bento-item {
-    border-radius: 0px; 
+    border-radius: 8px; 
     padding: 24px;
     overflow: hidden;
     position: relative;
-    background: rgba(15, 15, 15, 0.85);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    backdrop-filter: blur(10px);
+    background: rgba(41, 28, 20, 0.9);
+    border: 2px solid #8b4513;
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.4);
     transition: all 0.2s linear;
   }
-  /* Techy detail corners for cards */
+  .bento-item > div[style*="backgroundImage"] {
+    filter: sepia(0.8) contrast(1.2) brightness(0.9);
+  }
   .bento-item::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    border-top: 15px solid rgba(255, 215, 0, 0.5);
-    border-left: 15px solid transparent;
+    display: none;
   }
   .bento-item:hover {
-    transform: translateY(-2px);
-    background: rgba(20, 20, 20, 0.95);
-    border-color: var(--color-accent);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+    transform: translate(-3px, -3px);
+    background: rgba(50, 35, 25, 0.95);
+    border-color: #d9772b;
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
     z-index: 10;
   }
   
   .text-3d {
-    /* Nullifying previous 3D effect text shifting */
+    text-shadow: 1px 1px 0px rgba(139, 69, 19, 0.4);
   }
   
   .mask-fade-edges {
