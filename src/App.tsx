@@ -9,6 +9,51 @@ import { cn } from './lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { GoogleGenAI } from "@google/genai";
 
+declare const __APP_VERSION__: string;
+const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev-version';
+
+function VersionSync() {
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        const res = await fetch('/api/version');
+        const data = await res.json();
+        if (data.version && data.version !== APP_VERSION && data.version !== "dev-version") {
+           // Avoid infinite reload loops if there's a stubborn mismatch
+           if (localStorage.getItem('last_reloaded_version') !== data.version) {
+              console.log(`Version mismatch: client ${APP_VERSION}, server ${data.version}. Reloading...`);
+              localStorage.setItem('last_reloaded_version', data.version);
+              window.location.reload();
+           } else {
+              console.warn(`Version mismatch, but already reloaded for version ${data.version}`);
+           }
+        }
+      } catch (err) {
+        // Silently handle fetch errors (e.g. offline)
+      }
+    };
+
+    const interval = setInterval(checkVersion, 60000); // Check every minute
+    
+    const handleVisibilityChange = () => {
+       if (document.visibilityState === 'visible') {
+           checkVersion();
+       }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    // Check initially after a short delay
+    const initialCheck = setTimeout(checkVersion, 5000);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(initialCheck);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+  return null;
+}
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 
@@ -92,22 +137,22 @@ function RegistrationForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <div className="space-y-1">
         <label className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Full Name</label>
-        <input {...register('fullName')} className="w-full bg-white/5 border border-white/10 rounded-md p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="John Doe" />
+        <input {...register('fullName')} className="w-full bg-red-950/20 border border-red-600/30 rounded-sm-sm p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="John Doe" />
         {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName.message as string}</p>}
       </div>
       <div className="space-y-1">
         <label className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Email</label>
-        <input {...register('email')} className="w-full bg-white/5 border border-white/10 rounded-md p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="john@example.com" />
+        <input {...register('email')} className="w-full bg-red-950/20 border border-red-600/30 rounded-sm-sm p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="john@example.com" />
         {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message as string}</p>}
       </div>
       <div className="space-y-1">
         <label className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Phone</label>
-        <input {...register('phone')} className="w-full bg-white/5 border border-white/10 rounded-md p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="+27..." />
+        <input {...register('phone')} className="w-full bg-red-950/20 border border-red-600/30 rounded-sm-sm p-2 text-sm focus:outline-none focus:border-accent transition-colors" placeholder="+27..." />
         {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message as string}</p>}
       </div>
       <div className="space-y-1">
         <label className="text-[10px] uppercase opacity-50 font-bold tracking-wider">Category</label>
-        <select {...register('category')} className="w-full bg-white/5 border border-white/10 rounded-md p-2 text-sm focus:outline-none focus:border-accent transition-colors [&>option]:bg-zinc-900">
+        <select {...register('category')} className="w-full bg-red-950/20 border border-red-600/30 rounded-sm-sm p-2 text-sm focus:outline-none focus:border-accent transition-colors [&>option]:bg-zinc-900">
           <option value="">Select Category</option>
           <option value="Men's Bodybuilding">Men's Bodybuilding</option>
           <option value="Men's Physique">Men's Physique</option>
@@ -117,7 +162,7 @@ function RegistrationForm() {
         </select>
         {errors.category && <p className="text-red-400 text-xs mt-1">{errors.category.message as string}</p>}
       </div>
-      <button disabled={isSubmitting} type="submit" className="w-full accent-btn py-3 mt-2 rounded-md flex items-center justify-center gap-2">
+      <button disabled={isSubmitting} type="submit" className="w-full accent-btn py-3 mt-2 rounded-sm-sm flex items-center justify-center gap-2">
         {isSubmitting ? <Loader2 className="animate-spin" /> : 'SUBMIT ENTRY'}
       </button>
       {success && <p className="text-green-400 text-center text-xs">Registration successful! We will contact you soon.</p>}
@@ -172,13 +217,13 @@ function Chatbot() {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className={cn("fixed bottom-4 right-4 z-50 accent-btn p-4 rounded-full shadow-lg", isOpen ? 'hidden' : 'flex')}
+        className={cn("fixed bottom-4 right-4 z-50 accent-btn p-4 rounded-sm-none shadow-lg", isOpen ? 'hidden' : 'flex')}
       >
         <MessageCircle fill="currentColor" />
       </button>
 
       {isOpen && (
-        <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] h-96 bg-[#111] border border-accent/20 rounded-xl shadow-2xl flex flex-col overflow-hidden glass">
+        <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)] h-96 bg-[#111] border border-accent/20 rounded-sm-lg shadow-2xl flex flex-col overflow-hidden glass">
           <div className="p-4 border-b border-accent/20 flex justify-between items-center bg-black/40 shrink-0">
             <h3 className="font-bold text-accent text-sm tracking-wider uppercase">WPNBF Assistant</h3>
             <button onClick={() => setIsOpen(false)} className="opacity-50 hover:opacity-100"><X size={16}/></button>
@@ -188,7 +233,7 @@ function Chatbot() {
              {messages.map((m, i) => (
                 <div key={i} className={cn("flex flex-col", m.role === 'user' ? 'items-end' : 'items-start')}>
                     <span className="opacity-50 text-[10px] uppercase mb-1">{m.role === 'user' ? 'You' : 'Assistant'}</span>
-                    <div className={cn("p-2 rounded-md max-w-[85%]", m.role === 'user' ? 'bg-accent text-black font-bold' : 'bg-white/10')}>
+                    <div className={cn("p-2 rounded-sm-sm max-w-[85%]", m.role === 'user' ? 'bg-accent text-black font-bold' : 'bg-red-900/20')}>
                       {m.content}
                     </div>
                 </div>
@@ -201,10 +246,10 @@ function Chatbot() {
               value={input}
               onChange={e => setInput(e.target.value)}
               placeholder="Ask about WPNBF..."
-              className="flex-1 bg-white/5 border border-white/10 rounded px-2 py-1 text-xs focus:outline-none focus:border-accent"
+              className="flex-1 bg-red-950/20 border border-red-600/30 rounded-sm px-2 py-1 text-xs focus:outline-none focus:border-accent"
               disabled={isLoading}
             />
-            <button type="submit" disabled={isLoading || !input.trim()} className="bg-accent text-black px-3 py-1 rounded text-xs font-bold disabled:opacity-50">
+            <button type="submit" disabled={isLoading || !input.trim()} className="bg-accent text-black px-3 py-1 rounded-sm text-xs font-bold disabled:opacity-50">
               Send
             </button>
           </form>
@@ -232,7 +277,7 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
   };
 
   return (
-    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded group bg-white/5 border border-white/5 flex items-center justify-center">
+    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded-sm group bg-red-950/20 border border-accent/20 flex items-center justify-center">
       <img 
         src={item.imageUrl} 
         alt={item.title} 
@@ -250,7 +295,7 @@ function GalleryItem({ item, index }: { key?: string | number, item: any; index:
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 flex flex-col justify-end">
         <h4 className="font-bold text-[10px] uppercase truncate">{item.title}</h4>
       </div>
-      <button onClick={handleShare} className="absolute top-2 right-2 p-1 bg-black/60 rounded text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:bg-black/90">
+      <button onClick={handleShare} className="absolute top-2 right-2 p-1 bg-black/60 rounded-sm text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:bg-black/90">
         <Share2 size={12} /> Share
       </button>
     </motion.div>
@@ -338,7 +383,7 @@ function Gallery() {
           placeholder="Filter by title or year..." 
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
+          className="flex-1 bg-red-950/20 border border-red-600/30 px-3 py-2 rounded-sm-sm focus:outline-none focus:border-accent text-sm"
         />
         <button 
           onClick={handleGenerate}
@@ -367,8 +412,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#ffffff] font-body flex flex-col">
+      <VersionSync />
       {/* Navbar */}
-      <nav className="h-16 flex items-center justify-between px-4 md:px-8 bg-black/50 border-b border-white/10 shrink-0 sticky top-0 z-50 glass">
+      <nav className="h-16 flex items-center justify-between px-4 md:px-8 bg-black/50 border-b border-red-600/30 shrink-0 sticky top-0 z-50 glass">
         <div className="flex items-center gap-8">
           <span className="text-xl font-black italic cursor-pointer" onClick={() => window.scrollTo(0, 0)}>WPNBF</span>
           <div className="hidden lg:flex gap-6 text-sm font-medium opacity-70 uppercase tracking-widest">
@@ -382,7 +428,7 @@ export default function App() {
             <button onClick={() => scrollTo('sponsors')} className="hover:opacity-100 transition-opacity">SPONSORS</button>
           </div>
         </div>
-        <button onClick={() => scrollTo('athletes')} className="accent-btn px-6 py-2 rounded-full text-sm">
+        <button onClick={() => scrollTo('athletes')} className="accent-btn px-6 py-2 rounded-sm-none text-sm">
           REGISTER NOW
         </button>
       </nav>
@@ -393,12 +439,12 @@ export default function App() {
           <div className="absolute inset-0 z-[-1] bg-center bg-cover bg-[center_top_10%] opacity-40 mix-blend-overlay" style={{backgroundImage: "url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80')"}}></div>
           <h1 className="bold-header text-6xl md:text-8xl mb-4 text-3d">THE DAVID ISAACS<br/>CLASSIC 2026</h1>
           <div className="flex flex-col md:flex-row md:items-center gap-6 mt-2 text-3d">
-            <div className="bg-white/10 px-4 py-2 rounded-lg inline-block border border-white/10 backdrop-blur-md">
+            <div className="bg-red-900/20 px-4 py-2 rounded-sm-md inline-block border border-red-600/30 backdrop-blur-md">
               <span className="text-xs opacity-50 block uppercase font-bold tracking-wider mb-1">Event Countdown</span>
               <Countdown />
             </div>
-            <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-lg border border-white/5 backdrop-blur-sm">
-              <span className="bg-red-600 w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
+            <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-sm-md border border-accent/20 backdrop-blur-sm">
+              <span className="bg-red-600 w-3 h-3 rounded-sm-none animate-pulse shadow-[0_0_10px_rgba(220,38,38,0.8)]"></span>
               <span className="text-sm font-bold uppercase tracking-widest">Registration Open</span>
             </div>
           </div>
@@ -407,7 +453,7 @@ export default function App() {
         {/* 2. Registration Form */}
         <div id="athletes" className="bento-item col-span-12 lg:col-span-4 lg:row-span-2 flex flex-col hover:z-20 transition-all duration-500 relative overflow-hidden group">
           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80')"}}></div>
-          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-white/10 pb-2 text-3d relative z-10">Athlete Registration</h2>
+          <h2 className="text-lg font-bold mb-4 uppercase tracking-wider border-b border-red-600/30 pb-2 text-3d relative z-10">Athlete Registration</h2>
           <div className="text-3d w-full relative z-10">
             <RegistrationForm />
           </div>
@@ -416,17 +462,17 @@ export default function App() {
         {/* 3. About WPNBF */}
         <div id="about" className="bento-item col-span-12 lg:col-span-8 hover:z-20 transition-all duration-500 relative overflow-hidden group">
           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1526506114642-54bc7b99c82c?auto=format&fit=crop&q=80')"}}></div>
-          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-white/10 pb-2 text-3d text-accent relative z-10">About WPNBF</h2>
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-red-600/30 pb-2 text-3d text-accent relative z-10">About WPNBF</h2>
           <div className="grid md:grid-cols-2 gap-8 text-sm opacity-80 leading-relaxed font-medium text-3d relative z-10">
             <div>
               <p className="mb-4">The Western Province Natural Bodybuilding Federation (WPNBF) was established in 1951, dedicated to promoting drug-free bodybuilding and fitness in the region. Our mission is to protect the integrity of the sport.</p>
               <p>We uphold the highest standards of natural competition, providing athletes a fair stage to showcase their hard work, dedication, and pure genetic potential.</p>
             </div>
-            <div className="bg-white/5 p-4 rounded-lg border border-white/5 flex flex-col justify-center items-center text-center shadow-[inset_0_0_20px_rgba(255,215,0,0.05)] border-t-accent/30">
+            <div className="bg-red-950/20 p-4 rounded-sm-md border border-accent/20 flex flex-col justify-center items-center text-center shadow-[inset_0_0_20px_rgba(255,215,0,0.05)] border-t-accent/30">
               <span className="text-4xl mb-2 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">🏆</span>
               <p className="font-bold uppercase tracking-wider mb-2 text-accent">100% Natural Guarantee</p>
               <p className="text-xs opacity-70">Dedicated to polygraph-tested and urine-tested shows strictly conforming with international natural bodybuilding standards.</p>
-              <button onClick={() => scrollTo('rules')} className="mt-4 px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 hover:border-accent transition-colors text-[10px] uppercase font-bold tracking-widest">Read Full Rules</button>
+              <button onClick={() => scrollTo('rules')} className="mt-4 px-4 py-1.5 border border-red-500/40 rounded-sm hover:bg-red-900/20 hover:border-accent transition-colors text-[10px] uppercase font-bold tracking-widest">Read Full Rules</button>
             </div>
           </div>
         </div>
@@ -454,7 +500,7 @@ export default function App() {
                  src="/gallery/david-recent.jpg" 
                  alt="David Isaacs flexing" 
                  referrerPolicy="no-referrer"
-                 className="w-full h-40 object-cover rounded-md border border-white/10 shadow-lg mb-2 object-top"
+                 className="w-full h-40 object-cover rounded-sm-sm border border-red-600/30 shadow-lg mb-2 object-top"
                  onError={(e) => {
                    // Fallback for preview if image hasn't been uploaded yet
                    (e.target as HTMLImageElement).style.display = 'none';
@@ -463,7 +509,7 @@ export default function App() {
                <p>
                  Sharing the stage with future bodybuilding and political royalty created a historic, cross-cultural lineup remembered as a defining moment in Golden Era natural bodybuilding.
                </p>
-               <div className="bg-black/50 p-4 rounded border-l-2 border-accent mt-auto mb-3">
+               <div className="bg-black/50 p-4 rounded-sm border-l-2 border-accent mt-auto mb-3">
                   <p className="italic">"He later participated in the 1969 Mr. Universe, Mr. World, and Mr. International contests. Today, the legend continues to inspire and he lives locally in Heideveld."</p>
                </div>
                
@@ -471,7 +517,7 @@ export default function App() {
                  href="https://www.google.com/search?q=David+Isaacs+Cape+Town+Bodybuilder+Mr+Universe" 
                  target="_blank" 
                  rel="noopener noreferrer"
-                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-accent/20 to-transparent hover:from-accent/40 border border-accent/50 rounded-md transition-all text-[10px] uppercase font-bold tracking-widest text-accent shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] transform hover:scale-105"
+                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-accent/20 to-transparent hover:from-accent/40 border border-accent/50 rounded-sm-sm transition-all text-[10px] uppercase font-bold tracking-widest text-accent shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] transform hover:scale-105"
                >
                  Search More About His Legacy
                </a>
@@ -486,39 +532,39 @@ export default function App() {
           
           <div className="relative z-10 flex flex-col h-full">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-accent/20 rounded-lg text-accent">
+              <div className="p-2 bg-accent/20 rounded-sm-md text-accent">
                 <Phone size={20} />
               </div>
               <h2 className="text-lg font-bold uppercase tracking-widest text-accent">Contact Organizers</h2>
             </div>
             
             <div className="space-y-4 flex-1">
-              <a href="tel:+27813564430" className="flex flex-col p-3 rounded-xl bg-black/40 hover:bg-black/60 border border-white/5 hover:border-accent/50 transition-all group/contact cursor-pointer">
+              <a href="tel:+27813564430" className="flex flex-col p-3 rounded-sm-lg bg-black/40 hover:bg-black/60 border border-accent/20 hover:border-accent/50 transition-all group/contact cursor-pointer">
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-sm font-black text-white group-hover/contact:text-accent transition-colors">Haroun</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-black bg-accent px-2 py-0.5 rounded">President</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-black bg-accent px-2 py-0.5 rounded-sm">President</div>
                 </div>
                 <div className="text-xs font-mono tracking-widest text-white/70 group-hover/contact:text-white transition-colors">+27 81 356 4430</div>
               </a>
               
-              <a href="tel:+27721601131" className="flex flex-col p-3 rounded-xl bg-black/40 hover:bg-black/60 border border-white/5 hover:border-accent/50 transition-all group/contact cursor-pointer">
+              <a href="tel:+27721601131" className="flex flex-col p-3 rounded-sm-lg bg-black/40 hover:bg-black/60 border border-accent/20 hover:border-accent/50 transition-all group/contact cursor-pointer">
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-sm font-black text-white group-hover/contact:text-accent transition-colors">Andrew</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-white/90 bg-white/10 border border-white/10 px-2 py-0.5 rounded">Finance</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-white/90 bg-red-900/20 border border-red-600/30 px-2 py-0.5 rounded-sm">Finance</div>
                 </div>
                 <div className="text-xs font-mono tracking-widest text-white/70 group-hover/contact:text-white transition-colors">+27 72 160 1131</div>
               </a>
               
-              <a href="tel:+27795927850" className="flex flex-col p-3 rounded-xl bg-black/40 hover:bg-black/60 border border-white/5 hover:border-accent/50 transition-all group/contact cursor-pointer">
+              <a href="tel:+27795927850" className="flex flex-col p-3 rounded-sm-lg bg-black/40 hover:bg-black/60 border border-accent/20 hover:border-accent/50 transition-all group/contact cursor-pointer">
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-sm font-black text-white group-hover/contact:text-accent transition-colors">Jackie</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-white/90 bg-white/10 border border-white/10 px-2 py-0.5 rounded">Secretary</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-white/90 bg-red-900/20 border border-red-600/30 px-2 py-0.5 rounded-sm">Secretary</div>
                 </div>
                 <div className="text-xs font-mono tracking-widest text-white/70 group-hover/contact:text-white transition-colors">+27 79 592 7850</div>
               </a>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
+            <div className="mt-6 pt-4 border-t border-red-600/30 flex justify-between items-center">
               <span className="text-[10px] uppercase tracking-widest text-white/50">Tap cards to call</span>
               <div className="flex items-center gap-1.5 opacity-80">
                 <MapPin size={12} className="text-accent"/>
@@ -533,12 +579,12 @@ export default function App() {
           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&q=80')"}}></div>
           <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent relative z-10">Available Categories</h2>
           <div className="flex flex-wrap gap-2 text-3d relative z-10">
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Bodybuilding</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Physique</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Bikini Model</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Women's Figure</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Classic Physique</span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Masters Open</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Bodybuilding</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Men's Physique</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Bikini Model</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Women's Figure</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Classic Physique</span>
+            <span className="px-3 py-1.5 bg-red-900/20 rounded-sm-sm text-[10px] font-bold uppercase tracking-wider border border-accent/20 hover:border-accent hover:text-accent transition-colors shadow-inner">Masters Open</span>
           </div>
         </div>
 
@@ -547,23 +593,23 @@ export default function App() {
           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80')"}}></div>
           <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-3d text-accent relative z-10 flex items-center justify-between">
             <span>Event Schedule</span>
-            <span className="text-[10px] bg-accent text-black px-2 py-0.5 rounded font-black tracking-tighter">OCT 24, 2026</span>
+            <span className="text-[10px] bg-accent text-black px-2 py-0.5 rounded-sm font-black tracking-tighter">OCT 24, 2026</span>
           </h2>
           <div className="flex flex-col gap-3 text-3d relative z-10">
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+            <div className="flex justify-between items-center border-b border-red-600/30 pb-2">
               <span className="text-sm font-bold opacity-90">Athlete Registration</span>
               <span className="text-xs font-mono tracking-widest text-accent">08:00 AM</span>
             </div>
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+            <div className="flex justify-between items-center border-b border-red-600/30 pb-2">
               <span className="text-sm font-bold opacity-90">Prejudging</span>
               <span className="text-xs font-mono tracking-widest text-accent">10:00 AM</span>
             </div>
-            <div className="flex justify-between items-center border-b border-white/10 pb-2">
+            <div className="flex justify-between items-center border-b border-red-600/30 pb-2">
               <span className="text-sm font-bold opacity-90">Intermission</span>
               <span className="text-xs font-mono tracking-widest text-accent">02:00 PM</span>
             </div>
             <div className="flex justify-between items-center pb-2">
-              <span className="text-sm font-bold opacity-90 flex items-center gap-2">Main Event Finals <span className="bg-red-600 w-2 h-2 rounded-full animate-pulse inline-block"></span></span>
+              <span className="text-sm font-bold opacity-90 flex items-center gap-2">Main Event Finals <span className="bg-red-600 w-2 h-2 rounded-sm-none animate-pulse inline-block"></span></span>
               <span className="text-xs font-mono tracking-widest text-accent">05:00 PM</span>
             </div>
           </div>
@@ -580,7 +626,7 @@ export default function App() {
         {/* 7. Sponsors */}
         <div id="sponsors" className="bento-item col-span-12 flex flex-col md:flex-row items-center gap-6 py-6 overflow-hidden relative border-y-accent/20 group">
           <div className="absolute inset-0 z-0 bg-center bg-cover opacity-10 mix-blend-overlay group-hover:opacity-30 transition-opacity duration-700" style={{backgroundImage: "url('https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&q=80')"}}></div>
-          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/80 md:pr-4 md:border-r border-accent/20 p-2 md:p-0 rounded backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.1)] text-3d relative">
+          <div className="z-10 flex items-center justify-center shrink-0 md:bg-transparent bg-black/80 md:pr-4 md:border-r border-accent/20 p-2 md:p-0 rounded-sm backdrop-blur-md shadow-[0_0_20px_rgba(255,215,0,0.1)] text-3d relative">
             <span className="text-[10px] font-black uppercase tracking-[0.5em] text-center text-accent">Official Sponsors</span>
           </div>
           
@@ -595,13 +641,13 @@ export default function App() {
                 { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
                 { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
                 { name: "WPNBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
-                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
+                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-red-500/40 px-2 py-1 rounded-sm" },
                 /* Duplicate for seamless infinite scroll loop */
                 { name: "Amy's Private Range", url: "#", style: "font-bold text-lg tracking-tighter uppercase" },
                 { name: "Zahir's Biltong", url: "#", style: "font-bold text-lg tracking-tighter italic text-accent uppercase" },
                 { name: "GoBrown.co.za", url: "http://www.gobrown.co.za", style: "font-bold text-lg underline decoration-accent uppercase text-white drop-shadow-[0_0_5px_rgba(255,215,0,0.5)]" },
                 { name: "WPNBF Athletics", url: "#", style: "font-bold text-lg tracking-widest text-[#FFD700] uppercase pt-1" },
-                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-white/20 px-2 py-1 rounded" },
+                { name: "Cape Gym Equipment", url: "#", style: "font-black text-lg tracking-tight uppercase border border-red-500/40 px-2 py-1 rounded-sm" },
               ].map((s, i) => (
                 <a key={i} href={s.url} target={s.url !== "#" ? "_blank" : undefined} rel="noopener noreferrer" className={`${s.style} opacity-70 hover:opacity-100 transition-all hover:scale-110 inline-block`}>
                   {s.name}
@@ -619,17 +665,17 @@ export default function App() {
                 <h2 className="text-xl font-bold uppercase tracking-wider mb-2 border-b border-accent/20 pb-4 text-accent drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">Venue Location</h2>
                 <div className="space-y-4 font-medium text-sm opacity-80 mt-4 leading-relaxed">
                    <p>Join us at the heart of the Western Province for the highly anticipated David Isaacs Classic 2026.</p>
-                   <p className="flex items-start gap-3 text-white bg-black/40 p-3 rounded-lg border border-white/5">
+                   <p className="flex items-start gap-3 text-white bg-black/40 p-3 rounded-sm-md border border-accent/20">
                       <MapPin size={24} className="shrink-0 mt-0.5 text-accent animate-bounce" />
                       <span className="font-mono text-xs">Cape Town Central<br/>Western Province<br/>South Africa</span>
                    </p>
                 </div>
               </div>
-              <a href="https://maps.app.goo.gl/t6C16uEn3SdivDcX8" target="_blank" rel="noopener noreferrer" className="accent-btn text-xs px-6 py-3 rounded text-center mt-6 uppercase font-black w-fit">
+              <a href="https://maps.app.goo.gl/t6C16uEn3SdivDcX8" target="_blank" rel="noopener noreferrer" className="accent-btn text-xs px-6 py-3 rounded-sm text-center mt-6 uppercase font-black w-fit">
                 Get Directions
               </a>
            </div>
-           <div className="w-full md:w-2/3 h-64 md:h-[350px] rounded hover:opacity-100 transition-opacity overflow-hidden border-2 border-accent/20 hover:border-accent shadow-[0_0_20px_rgba(255,215,0,0.1)] grayscale-0 relative glass text-3d">
+           <div className="w-full md:w-2/3 h-64 md:h-[350px] rounded-sm hover:opacity-100 transition-opacity overflow-hidden border-2 border-accent/20 hover:border-accent shadow-[0_0_20px_rgba(255,215,0,0.1)] grayscale-0 relative glass text-3d">
                <iframe 
                       title="Google Maps Location Cape Town"
                       src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d105886.99285093748!2d18.36159670732386!3d-33.91458999908611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc500f8826eed7%3A0x687fe1fc2828aa87!2sCape%20Town!5e0!3m2!1sen!2sza!4v1714138128365!5m2!1sen!2sza" 
@@ -693,7 +739,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-8 h-auto py-4 md:h-16 flex flex-col md:flex-row items-center justify-between px-8 bg-black/50 border-t border-white/10 text-[10px] font-medium opacity-70 uppercase tracking-widest gap-4 shrink-0 glass">
+      <footer className="mt-8 h-auto py-4 md:h-16 flex flex-col md:flex-row items-center justify-between px-8 bg-black/50 border-t border-red-600/30 text-[10px] font-medium opacity-70 uppercase tracking-widest gap-4 shrink-0 glass">
         <div className="flex flex-wrap items-center justify-center gap-6">
           <span className="font-bold">&copy; {new Date().getFullYear()} WPNBF</span>
           <a href="#about" className="hover:text-accent transition-colors">FAQ</a>
@@ -712,7 +758,7 @@ export default function App() {
           <a href="https://twitter.com/wpnbbf" className="flex items-center gap-2 hover:text-accent transition-colors">
             <Twitter size={14} /> <span className="hidden sm:inline">Twitter</span>
           </a>
-          <span className="text-black font-bold bg-white/90 px-2 py-1 rounded hidden lg:block">Western Province, ZA</span>
+          <span className="text-black font-bold bg-white/90 px-2 py-1 rounded-sm hidden lg:block">Western Province, ZA</span>
         </div>
       </footer>
       <Chatbot />

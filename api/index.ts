@@ -11,6 +11,14 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+const getAppVersion = () => {
+  return process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_GIT_COMMIT_SHA || "dev-version";
+};
+
+app.get("/api/version", (req, res) => {
+  res.json({ version: getAppVersion() });
+});
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post("/api/generate-image", async (req, res) => {
