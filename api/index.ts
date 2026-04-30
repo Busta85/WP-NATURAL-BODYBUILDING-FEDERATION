@@ -70,7 +70,8 @@ app.post("/api/send-sms", async (req, res) => {
         return res.status(200).json({ success: true, fake: true, message: "Twilio credentials missing; SMS logging only." });
       }
       
-      const twilio = require('twilio');
+      const twilioModule = await import('twilio');
+      const twilio = twilioModule.default || twilioModule;
       twilioClient = twilio(twilioSid, twilioToken);
     }
 
