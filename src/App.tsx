@@ -3,8 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Facebook, Instagram, Twitter, MapPin, Loader2, Phone, MessageCircle, X } from 'lucide-react';
-import { addRegistration } from './lib/firebase';
+import { Facebook, Instagram, Twitter, MapPin, Loader2, Phone, MessageCircle, X, Share2, Sparkles } from 'lucide-react';
+import { addRegistration, addGalleryItem, subscribeToGallery } from './lib/firebase';
 import { cn } from './lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { GoogleGenAI } from "@google/genai";
@@ -214,6 +214,151 @@ function Chatbot() {
   );
 }
 
+function GalleryItem({ item, index }: { key?: string | number, item: any; index: number }) {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -100 + (index % 3) * 30]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 1.05]);
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: item.title,
+        text: `Check out ${item.title} from WPNBF!`,
+        url: item.imageUrl,
+      }).catch(console.error);
+    } else {
+      alert("Sharing not supported on this browser.");
+    }
+  };
+
+  return (
+    <motion.div style={{ y, scale }} className="relative overflow-hidden rounded group bg-white/5 border border-white/5 flex items-center justify-center">
+      <img 
+        src={item.imageUrl} 
+        alt={item.title} 
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 aspect-[3/4]" 
+        referrerPolicy="no-referrer"
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+          (e.target as HTMLImageElement).parentElement?.classList.add('aspect-[3/4]');
+          const textNode = document.createElement('span');
+          textNode.className = 'text-[10px] text-white/40 uppercase absolute';
+          textNode.innerText = 'Upload image to public/gallery';
+          (e.target as HTMLImageElement).parentElement?.appendChild(textNode);
+        }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-2 flex flex-col justify-end">
+        <h4 className="font-bold text-[10px] uppercase truncate">{item.title}</h4>
+      </div>
+      <button onClick={handleShare} className="absolute top-2 right-2 p-1 bg-black/60 rounded text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:bg-black/90">
+        <Share2 size={12} /> Share
+      </button>
+    </motion.div>
+  );
+}
+
+function Gallery() {
+  const [filter, setFilter] = useState('');
+  const [dbItems, setDbItems] = useState<{id: string, title: string, year: string, imageUrl: string}[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToGallery((items) => {
+      setDbItems(items);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'A highly aesthetic natural bodybuilder on stage hitting a classic pose' })
+      });
+      
+      const data = await response.json();
+      if (data.imageUrl) {
+        await addGalleryItem({
+          title: 'AI Generated Natural Bodybuilder',
+          year: new Date().getFullYear().toString(),
+          imageUrl: data.imageUrl
+        });
+      } else {
+        alert(data.error || 'Failed to generate image');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error generating image');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const staticItems = [
+    {
+      id: 'static-1',
+      title: 'Legendary Posing',
+      year: '1960s',
+      imageUrl: '/gallery/david-posing.jpg'
+    },
+    {
+      id: 'static-2',
+      title: 'Classic Physique',
+      year: '1960s',
+      imageUrl: '/gallery/david-younger.jpg'
+    },
+    {
+      id: 'static-3',
+      title: 'With Arnold Schwarzenegger',
+      year: '1966',
+      imageUrl: '/gallery/david-arnold.jpg'
+    },
+    {
+      id: 'static-4',
+      title: 'David Isaacs Today',
+      year: 'Recent',
+      imageUrl: '/gallery/david-recent.jpg'
+    }
+  ];
+
+  const allItems = [...dbItems, ...staticItems];
+
+  const filteredItems = allItems.filter(item => 
+    item.title?.toLowerCase().includes(filter.toLowerCase()) || 
+    item.year?.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input 
+          type="text" 
+          placeholder="Filter by title or year..." 
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="flex-1 bg-white/5 border border-white/10 px-3 py-2 rounded-md focus:outline-none focus:border-accent text-sm"
+        />
+        <button 
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="accent-btn shrink-0 flex items-center justify-center gap-2"
+        >
+          {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} 
+          {isGenerating ? 'Generating...' : 'Generate AI Image'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {filteredItems.map((item, i) => (
+          <GalleryItem key={item.id} item={item} index={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -230,6 +375,7 @@ export default function App() {
             <button onClick={() => scrollTo('about')} className="hover:opacity-100 transition-opacity">ABOUT</button>
             <button onClick={() => scrollTo('history')} className="hover:opacity-100 transition-opacity">HISTORY</button>
             <button onClick={() => scrollTo('athletes')} className="hover:opacity-100 transition-opacity">ATHLETES</button>
+            <button onClick={() => scrollTo('gallery')} className="hover:opacity-100 transition-opacity">GALLERY</button>
             <button onClick={() => scrollTo('location')} className="hover:opacity-100 transition-opacity">LOCATION</button>
             <button onClick={() => scrollTo('rules')} className="hover:opacity-100 transition-opacity">RULES</button>
             <button onClick={() => scrollTo('sponsors')} className="hover:opacity-100 transition-opacity">SPONSORS</button>
@@ -392,6 +538,14 @@ export default function App() {
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Women's Figure</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Classic Physique</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/5 hover:border-accent hover:text-accent transition-colors shadow-inner">Masters Open</span>
+          </div>
+        </div>
+
+        {/* 6. Gallery */}
+        <div id="gallery" className="bento-item col-span-12 lg:col-span-8 lg:row-span-2 lg:row-start-4 lg:col-start-1 flex flex-col hover:z-20 transition-all duration-500">
+          <h2 className="text-xs font-bold mb-4 uppercase tracking-widest border-b border-accent/20 pb-2 text-3d text-accent">Legendary Moments Gallery</h2>
+          <div className="text-3d flex-1">
+            <Gallery />
           </div>
         </div>
 
